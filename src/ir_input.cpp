@@ -7,7 +7,7 @@
 // Port B のピン設定
 // 黄色い線が 8, 白い線が 9 に繋がっています。
 // IR Unitの受信素子がどちらに繋がっているか、まずは 9 で試し、ダメなら 8 に変えてください。
-const uint16_t kRecvPin = 8; 
+const uint16_t kRecvPin = 36; 
 
 const uint16_t kCaptureBufferSize = 1024;
 const uint8_t kTimeout = 50;

@@ -2,7 +2,7 @@
 #include <IRremoteESP8266.h>
 #include <IRsend.h>
 
-const uint16_t kIrLedPin = 9; 
+const uint16_t kIrLedPin =26; 
 IRsend irsend(kIrLedPin);
 
 // 取得していただいた電源ON/OFF（トグル）のRawデータ
