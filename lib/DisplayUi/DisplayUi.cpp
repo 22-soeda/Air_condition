@@ -1,31 +1,47 @@
 #include "DisplayUi.h"
 
 DisplayUi::DisplayUi() : sprite(&M5.Display) {
-    // コンストラクタでの初期化が必要な場合はここに記述
 }
 
 void DisplayUi::begin() {
-    // スプライトの設定
-    // M5Stack Basicの画面サイズ(320x240)に合わせてメモリを確保
-    sprite.createSprite(320, 240);
-    sprite.setTextDatum(top_left); // テキストの描画基準を左上に
+    // メモリ不足を防ぐため、色深度を8bit(256色)に下げてからスプライトを作成します
+    sprite.setColorDepth(8); 
+    
+    // スプライトの作成 (作成できたかどうかのチェック付き)
+    if (sprite.createSprite(320, 240) == nullptr) {
+        Serial.println("Error: Failed to create sprite! (Out of memory)");
+    } else {
+        Serial.println("Sprite created successfully.");
+    }
+    
+    sprite.setTextDatum(top_left);
 }
 
 void DisplayUi::draw(String time, String weather, float temp, float hum, String acState) {
-    // 1. スプライト（裏画面）を黒で塗りつぶす
+    // ------------------------------------------
+    // デバッグ用：シリアルモニタへ出力
+    // ------------------------------------------
+    Serial.println("=== Display Update ===");
+    Serial.printf("Time    : %s\n", time.c_str());
+    Serial.printf("Weather : %s\n", weather.c_str());
+    Serial.printf("Temp    : %.1f C\n", temp);
+    Serial.printf("Hum     : %.1f %%\n", hum);
+    Serial.printf("AC State: %s\n", acState.c_str());
+    Serial.println("======================");
+
+    // ------------------------------------------
+    // 画面(スプライト)への描画
+    // ------------------------------------------
     sprite.fillScreen(TFT_BLACK);
 
-    // 2. 枠線や固定のタイトルを描画
     sprite.drawRect(0, 0, 320, 240, TFT_WHITE);
-    sprite.drawFastHLine(0, 40, 320, TFT_WHITE); // 上部の区切り線
+    sprite.drawFastHLine(0, 40, 320, TFT_WHITE);
     
-    // タイトル
     sprite.setTextColor(TFT_CYAN);
     sprite.setFont(&fonts::FreeSansBold12pt7b);
     sprite.setCursor(10, 10);
     sprite.print("Smart AC Controller");
 
-    // 3. 変化する情報（時刻・天気）の描画
     sprite.setTextColor(TFT_WHITE);
     sprite.setFont(&fonts::FreeSans12pt7b);
     
@@ -35,7 +51,6 @@ void DisplayUi::draw(String time, String weather, float temp, float hum, String 
     sprite.setCursor(10, 95);
     sprite.printf("Weather: %s", weather.c_str());
 
-    // 4. センサー情報（温度・湿度）の描画
     sprite.setTextColor(TFT_YELLOW);
     sprite.setCursor(10, 130);
     sprite.printf("Temp: %.1f C", temp);
@@ -43,20 +58,18 @@ void DisplayUi::draw(String time, String weather, float temp, float hum, String 
     sprite.setCursor(160, 130);
     sprite.printf("Hum: %.1f %%", hum);
 
-    // 5. エアコンの動作状況の描画
-    // 状態によって文字色を変える
     if (acState.indexOf("COOL") >= 0) {
         sprite.setTextColor(TFT_BLUE);
     } else if (acState.indexOf("HEAT") >= 0) {
         sprite.setTextColor(TFT_RED);
     } else {
-        sprite.setTextColor(TFT_LIGHTGRAY); // OFFの時など
+        sprite.setTextColor(TFT_LIGHTGRAY);
     }
     
-    sprite.setFont(&fonts::FreeSansBold18pt7b); // 少し大きなフォントで
+    sprite.setFont(&fonts::FreeSansBold18pt7b);
     sprite.setCursor(10, 180);
     sprite.printf("AC: %s", acState.c_str());
 
-    // 6. 最後にスプライト（裏画面）を実際のディスプレイに転送する
+    // スプライトを画面に転送
     sprite.pushSprite(0, 0);
 }
